@@ -21,6 +21,7 @@ class MaturinSettings:
     all_features: bool = False
     no_default_features: bool = False
     target: Optional[str] = None
+    target_dir: Optional[str] = None
     ignore_rust_version: bool = False
     color: Optional[bool] = None
     frozen: bool = False
@@ -71,6 +72,9 @@ class MaturinSettings:
         if self.target is not None:
             args.append("--target")
             args.append(self.target)
+        if self.target_dir is not None:
+            args.append("--target-dir")
+            args.append(self.target_dir)
         if self.ignore_rust_version:
             args.append("--ignore-rust-version")
         if self.color is not None:
@@ -142,6 +146,7 @@ class MaturinSettings:
         parser.add_argument("--all-features", action="store_true")
         parser.add_argument("--no-default-features", action="store_true")
         parser.add_argument("--target")
+        parser.add_argument("--target-dir")
         parser.add_argument("--ignore-rust-version", action="store_true")
 
         def parse_color(arg: str) -> Optional[bool]:

@@ -6,7 +6,7 @@ import shutil
 import site
 import subprocess
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Dict
 
 from maturin_import_hook import project_importer, rust_file_importer
 from maturin_import_hook._building import get_default_build_dir
@@ -151,7 +151,7 @@ def _dir_size_mib(dir_path: Path) -> str:
     return f"{cache_size / (1024 * 1024):.2f} MiB"
 
 
-def _print_info(info: dict[str, object], format_name: str) -> None:
+def _print_info(info: Dict[str, object], format_name: str) -> None:
     if format_name == "text":
         for k, v in info.items():
             print(f"{k}: {v}")
@@ -211,19 +211,19 @@ def _main() -> None:
         "--project-importer",
         default=True,
         help="Whether to enable the project importer",
-        action=argparse.BooleanOptionalAction,
+        action="store_true",
     )
     install.add_argument(
         "--rs-file-importer",
         default=True,
         help="Whether to enable the rs file importer",
-        action=argparse.BooleanOptionalAction,
+        action="store_true",
     )
     install.add_argument(
         "--detect-uv",
         default=True,
         help="Whether to automatically detect and use the --uv flag",
-        action=argparse.BooleanOptionalAction,
+        action="store_true",
     )
     install.add_argument(
         "--args",

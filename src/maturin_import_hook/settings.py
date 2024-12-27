@@ -1,8 +1,7 @@
 import argparse
 import re
-from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import IO, Any, Literal, Optional, Union
+from typing import IO, Any, Dict, List, Literal, Optional, Sequence, Union
 
 __all__ = [
     "MaturinSettings",
@@ -18,7 +17,7 @@ class MaturinSettings:
     quiet: bool = False
     jobs: Optional[int] = None
     profile: Optional[str] = None
-    features: Optional[list[str]] = None
+    features: Optional[List[str]] = None
     all_features: bool = False
     no_default_features: bool = False
     target: Optional[str] = None
@@ -27,17 +26,17 @@ class MaturinSettings:
     frozen: bool = False
     locked: bool = False
     offline: bool = False
-    config: Optional[dict[str, str]] = None
-    unstable_flags: Optional[list[str]] = None
+    config: Optional[Dict[str, str]] = None
+    unstable_flags: Optional[List[str]] = None
     verbose: int = 0
-    rustc_flags: Optional[list[str]] = None
+    rustc_flags: Optional[List[str]] = None
 
     # `maturin build` specific
     auditwheel: Optional[str] = None
     zig: bool = False
 
     # `maturin develop` specific
-    extras: Optional[list[str]] = None
+    extras: Optional[List[str]] = None
     uv: bool = False
     skip_install: bool = False
 
@@ -48,8 +47,8 @@ class MaturinSettings:
             color=True,
         )
 
-    def to_args(self, cmd: Literal["develop", "build"]) -> list[str]:
-        args: list[str] = []
+    def to_args(self, cmd: Literal["develop", "build"]) -> List[str]:
+        args: List[str] = []
         if self.release:
             args.append("--release")
         if self.strip:
@@ -89,7 +88,7 @@ class MaturinSettings:
         if self.config is not None:
             for key, value in self.config.items():
                 args.append("--config")
-                args.append(f"{key}={value}")
+                args.append(f"{key}='{value}'")
         if self.unstable_flags is not None:
             for flag in self.unstable_flags:
                 args.append("-Z")
@@ -120,7 +119,7 @@ class MaturinSettings:
         return args
 
     @staticmethod
-    def from_args(raw_args: list[str]) -> "MaturinSettings":
+    def from_args(raw_args: List[str]) -> "MaturinSettings":
         """Parse command line flags into this data structure"""
         parser = MaturinSettings.parser()
         args = parser.parse_args(raw_args)

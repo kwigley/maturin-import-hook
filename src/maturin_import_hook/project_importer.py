@@ -13,12 +13,11 @@ import time
 import urllib.parse
 import urllib.request
 from abc import ABC, abstractmethod
-from collections.abc import Iterator, Sequence
 from functools import lru_cache
 from importlib.machinery import ExtensionFileLoader, ModuleSpec, PathFinder
 from pathlib import Path
 from types import ModuleType
-from typing import ClassVar, Optional, Union
+from typing import ClassVar, Iterator, List, Optional, Sequence, Set, Tuple, Union
 
 from maturin_import_hook._building import (
     BuildCache,
@@ -55,7 +54,7 @@ class ProjectFileSearcher(ABC):
     def get_source_paths(
         self,
         project_dir: Path,
-        all_path_dependencies: list[Path],
+        all_path_dependencies: List[Path],
         installed_package_root: Path,
     ) -> Iterator[Path]:
         """find the files corresponding to the source code of the given project"""
@@ -221,7 +220,7 @@ class MaturinProjectImporter(importlib.abc.MetaPathFinder):
         self,
         package_name: str,
         project_dir: Path,
-    ) -> tuple[Optional[ModuleSpec], bool]:
+    ) -> Tuple[Optional[ModuleSpec], bool]:
         resolved = self._resolver.resolve(project_dir)
         if resolved is None:
             return None, False
@@ -293,7 +292,7 @@ class MaturinProjectImporter(importlib.abc.MetaPathFinder):
         resolved: MaturinProject,
         settings: MaturinSettings,
         build_cache: LockedBuildCache,
-    ) -> tuple[Optional[ModuleSpec], Optional[str]]:
+    ) -> Tuple[Optional[ModuleSpec], Optional[str]]:
         """Return a spec for the package if it exists and is newer than the source
         code that it is derived from.
         """
@@ -403,7 +402,7 @@ def _find_dist_info_path(directory: Path, package_name: str) -> Optional[Path]:
 
 def _load_dist_info(
     path: Path, package_name: str, *, require_project_target: bool = True
-) -> tuple[Optional[Path], bool]:
+) -> Tuple[Optional[Path], bool]:
     dist_info_path = _find_dist_info_path(path, package_name)
     if dist_info_path is None:
         return None, False
@@ -479,7 +478,7 @@ class DefaultProjectFileSearcher(ProjectFileSearcher):
     # - https://github.com/github/gitignore/blob/main/Rust.gitignore
     # - https://github.com/github/gitignore/blob/main/Python.gitignore
     # - https://github.com/jupyter/notebook/blob/main/.gitignore
-    DEFAULT_SOURCE_EXCLUDED_DIR_NAMES: ClassVar[set[str]] = {
+    DEFAULT_SOURCE_EXCLUDED_DIR_NAMES: ClassVar[Set[str]] = {
         ".cache",
         ".env",
         ".git",
@@ -503,11 +502,11 @@ class DefaultProjectFileSearcher(ProjectFileSearcher):
         "target",
         "venv",
     }
-    DEFAULT_SOURCE_EXCLUDED_DIR_MARKERS: ClassVar[set[str]] = {
+    DEFAULT_SOURCE_EXCLUDED_DIR_MARKERS: ClassVar[Set[str]] = {
         "CACHEDIR.TAG",  # https://bford.info/cachedir/
         ".maturin_hook_ignore",
     }
-    DEFAULT_SOURCE_EXCLUDED_FILE_EXTENSIONS: ClassVar[set[str]] = {
+    DEFAULT_SOURCE_EXCLUDED_FILE_EXTENSIONS: ClassVar[Set[str]] = {
         ".so",
         ".py",
         ".pyc",
@@ -516,9 +515,9 @@ class DefaultProjectFileSearcher(ProjectFileSearcher):
     def __init__(
         self,
         *,
-        source_excluded_dir_names: Optional[set[str]] = None,
-        source_excluded_dir_markers: Optional[set[str]] = None,
-        source_excluded_file_extensions: Optional[set[str]] = None,
+        source_excluded_dir_names: Optional[Set[str]] = None,
+        source_excluded_dir_markers: Optional[Set[str]] = None,
+        source_excluded_file_extensions: Optional[Set[str]] = None,
     ) -> None:
         """
         Args:
@@ -549,7 +548,7 @@ class DefaultProjectFileSearcher(ProjectFileSearcher):
     def get_source_paths(
         self,
         project_dir: Path,
-        all_path_dependencies: list[Path],
+        all_path_dependencies: List[Path],
         installed_package_root: Path,
     ) -> Iterator[Path]:
         excluded_dirs = set()
@@ -581,10 +580,10 @@ class DefaultProjectFileSearcher(ProjectFileSearcher):
     def get_files_in_dir(
         self,
         root_path: Path,
-        ignore_dirs: set[Path],
-        excluded_dir_names: set[str],
-        excluded_dir_markers: set[str],
-        excluded_file_extensions: set[str],
+        ignore_dirs: Set[Path],
+        excluded_dir_names: Set[str],
+        excluded_dir_markers: Set[str],
+        excluded_file_extensions: Set[str],
     ) -> Iterator[Path]:
         if root_path.name in excluded_dir_names:
             return
